@@ -1,0 +1,38 @@
+#include<pthread.h>
+#include<stdio.h>
+#include<stdlib.h>
+#include<math.h>
+#include<unistd.h>
+
+#define NUM_THREADS 5
+
+void *PrintSquare(void *value)
+{
+	int *num = (int *)value;
+	int limit = *num + 10;
+	for(int i = *num; i < limit; i++)
+	{
+		int square = i * i;
+		printf("The square is %d \n", square);
+	}
+}
+
+int main()
+{
+	pthread_t threads[NUM_THREADS];
+	int nums[NUM_THREADS] = {1, 11, 21, 31, 41};
+	int b;
+	
+	for(int i = 0; i < 5; i++)
+	{
+		printf("Creating thread %d \n", i);
+		b = pthread_create(&threads[i], NULL, PrintSquare, &nums[i]);
+		pthread_join(threads[i], NULL);
+		
+		if(b)
+		{
+			printf("Sorry !);
+			exit(NULL);
+		}
+	}
+}
