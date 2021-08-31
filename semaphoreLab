@@ -1,0 +1,68 @@
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h>
+#include <unistd.h>
+#include <semaphore.h>
+sem_t mutex1, mutex2, mutex3;
+
+int num1, num2;
+int sum = 0;
+char op;
+
+void* numbers(void * id) {
+    sem_wait(&mutex1);
+
+    printf("Enter a number: ");
+    scanf("%d", &num1);
+
+    printf("Enter another number: ");
+    scanf("%d", &num2);
+
+    sem_post(&mutex2);
+}
+
+void* operators(void *id) {
+    sem_wait(&mutex2);
+    printf("(+/-):");
+    scanf(" %c", &op);
+
+
+    sem_post(&mutex3);
+}
+
+void* calculation(void * id) {
+    sem_wait(&mutex3);
+
+    if (op == '+') {
+        sum = num1 + num2;
+    } else if (op == '-') {
+        sum = num1 - num2;
+    } else {
+        printf("Invalid op");
+    }
+
+    sem_post(&mutex1);
+}
+
+int main() {
+    pthread_t id0, id1, id2;
+
+    sem_init(&mutex1, 0, 1);
+    sem_init(&mutex2, 0, 0);
+    sem_init(&mutex3, 0, 0);
+
+    pthread_create(&id0, NULL, numbers, (void *) &id0);
+
+    pthread_create(&id1, NULL, operators, (void *) &id1);
+
+    pthread_create(&id2, NULL, calculation, (void *) &id2);
+
+    pthread_join(id0, NULL);
+    pthread_join(id1, NULL);
+    pthread_join(id2, NULL);
+
+    printf("Sum : %d", sum);
+
+    pthread_exit(NULL);
+}
